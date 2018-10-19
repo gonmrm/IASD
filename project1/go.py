@@ -171,6 +171,70 @@ class Game():
         """
         Returns a list of valid moves at state s
         """
+        p = s["next_player"]
+        board = s["board"]
+        i = 1
+        j = 1
+        actions=[]
+        for line in board:
+            for point in line:
+                if point == str(0):
+                    adj = self.adjacents2(board,i,j)
+                    free = 1
+                    for place in adj:
+                        if board[place[0]][place[1]] == str(0):
+                            free = 1
+                        else:
+                            free = 0
+                        if free==1:
+                            actions.append((p,i,j))
+                        else:
+                            test_state=self.result(s,(p,i,j))
+                            if not self.terminal_test(test_state):
+                                actions.append((p,i,j))
+                j=j+1
+            i=i+1
+        return actions
+
+    def adjacents2(self, state, a, b):
+        """
+        Returns points surrounding a given (a,b) point
+        """
+        N = len(state)
+        positions = []
+
+        if a == 1 and b == 1:       # Upper left corner
+            positions.extend([[a + 1, b], [a, b + 1]])
+            return positions
+        elif a == N and b == N:     # Bottom left corner
+            positions.extend([[a, b - 1], [a - 1, b]])
+            return positions
+        elif a == 1 and b == N:     # Upper right corner
+            positions.extend([[a, b - 1], [a + 1, b]])
+            return positions
+        elif a == N and b == 1:     # Bottom left corner
+            positions.extend([[a - 1, b], [a, b + 1]])
+            return positions
+        elif a > N or b > N:
+            print("Position does not exist in board!!") # Impossible cases
+            return 0
+        elif a == 1:                # Upper side
+            positions.extend([[a, b + 1], [a, b - 1], [a + 1, b]])
+            return positions
+        elif a == N:                # Bottom side
+            positions.extend([[a, b + 1], [a, b - 1], [a - 1, b]])
+            return positions
+        elif b == 0:                # Left side
+            positions.extend([[a - 1, b], [a + 1, b], [a, b + 1]])
+            return positions
+        elif b == N:                # Right side
+            positions.extend([[a - 1, b], [a + 1, b], [a, b - 1]])
+            return positions
+        else:                       # Every other case
+            positions.extend([[a - 1, b], [a + 1, b], [a, b - 1], [a, b + 1]])
+            return positions
+
+
     def result(self, s, a):
 
         """
