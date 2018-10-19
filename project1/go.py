@@ -63,7 +63,7 @@ class Game():
         """
         Returns the player to move next given the state s
         """
-        
+
         return s["next_player"]
 
     def terminal_test(self, s): 
@@ -81,29 +81,29 @@ class Game():
             if a == 0 and b == 0:
                 positions.extend([[a + 1, b], [a, b + 1]])
                 return positions
-            elif a == state["board size"] - 1 and b == state["board size"] - 1:
-                positions.extend([[a, b - 1], [a - 1, b]]);
+            elif a == state["board_size"] - 1 and b == state["board_size"] - 1:
+                positions.extend([[a, b - 1], [a - 1, b]])
                 return positions
-            elif a == 0 and b == state["board size"] - 1:
-                positions.extend([[0, b - 1], [a + 1, b]]);
+            elif a == 0 and b == state["board_size"] - 1:
+                positions.extend([[0, b - 1], [a + 1, b]])
                 return positions
-            elif a == state["board size"] - 1 and b == 0:
-                positions.extend([[a - 1, 0], [a, b + 1]]);
+            elif a == state["board_size"] - 1 and b == 0:
+                positions.extend([[a - 1, 0], [a, b + 1]])
                 return positions
             elif a == 0:
-                positions.extend([[a, b + 1], [a, b - 1], [a + 1, b]]);
+                positions.extend([[a, b + 1], [a, b - 1], [a + 1, b]])
                 return positions
-            elif a == state["board size"] - 1:
-                positions.extend([[a, b + 1], [a, b - 1], [a - 1, b]]);
+            elif a == state["board_size"] - 1:
+                positions.extend([[a, b + 1], [a, b - 1], [a - 1, b]])
                 return positions
             elif b == 0:
-                positions.extend([[a - 1, b], [a + 1, b], [a, b + 1]]);
+                positions.extend([[a - 1, b], [a + 1, b], [a, b + 1]])
                 return positions
-            elif b == state["board size"] - 1:
-                positions.extend([[a - 1, b], [a + 1, b], [a, b - 1]]);
+            elif b == state["board_size"] - 1:
+                positions.extend([[a - 1, b], [a + 1, b], [a, b - 1]])
                 return positions
             else:
-                positions.extend([[a - 1, b], [a + 1, b], [a, b - 1], [a, b + 1]]);
+                positions.extend([[a - 1, b], [a + 1, b], [a, b - 1], [a, b + 1]])
                 return positions
             
         def strings(state):
@@ -116,10 +116,10 @@ class Game():
 
             print(state)
             
-            for i in range(0, state["board size"] - 1):
-                for j in range(0, state["board size"] - 1):
+            for i in range(0, state["board_size"] - 1):
+                for j in range(0, state["board_size"] - 1):
                     print(i, j)
-                    if state["board"][i][j] == str(state["next player"]) and (i, j) not in string:
+                    if state["board"][i][j] == str(state["next_player"]) and (i, j) not in string:
                         string.append([i, j])
                         length_pre = len(string)
                         print(string)
@@ -129,7 +129,7 @@ class Game():
                                 print("2", adjacents(*list(elem), state))
                                 for x, y in adjacents(*list(elem), state):
                                     print("X Y", x, y)
-                                    if state["board"][x][y] == str(state["next player"]) and [x, y] not in string:
+                                    if state["board"][x][y] == str(state["next_player"]) and [x, y] not in string:
                                         print(string)
                                         string.append((x, y))
                             length_pre = length_aft
@@ -152,7 +152,7 @@ class Game():
             for elem in v:
                 count = 0
                 for (coord_1, coord_2) in adjacents(*list(elem), s):
-                    if s["board"][coord_1][coord_2] == str(s["next player"]):
+                    if s["board"][coord_1][coord_2] == str(s["next_player"]):
                         count+=1
                 if count == 0:
                     return 1
@@ -181,7 +181,7 @@ class Game():
         line = a[1]
         column = a[2]
 
-        s["board"][line - 1][column - 1] = player
+        s["board"][line - 1][column - 1] = str(player)
         if player == 1:
             s["next_player"] = 2
         else:
@@ -220,8 +220,8 @@ class Game():
 
             current_state = {
                 "board": board,
-                "next player": next_player,
-                "board size": board_size
+                "next_player": next_player,
+                "board_size": board_size
             }
 
         except Exception as e:
@@ -231,6 +231,6 @@ class Game():
 
 ################################################################################################################
 
-atari_go = Game("initial_state.txt")
-print(atari_go.state)
-atari_go.terminal_test(atari_go.state)
+#atari_go = Game("initial_state.txt")
+#print(atari_go.state)
+#atari_go.terminal_test(atari_go.state)
