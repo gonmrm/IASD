@@ -72,92 +72,83 @@ class Game():
         Returns a boolean of whether state s is terminal
         """
 
-        def adjacents(a, b, state):
+        def adjacents(a, b, state):   # returns all possible adjacents positions for the position [a, b] in the game board
 
-            print("3", a, b)
-            
-            positions = []
+            positions = [];
 
             if a == 0 and b == 0:
-                positions.extend([[a + 1, b], [a, b + 1]])
-                return positions
-            elif a == state["board_size"] - 1 and b == state["board_size"] - 1:
-                positions.extend([[a, b - 1], [a - 1, b]])
-                return positions
-            elif a == 0 and b == state["board_size"] - 1:
-                positions.extend([[0, b - 1], [a + 1, b]])
-                return positions
-            elif a == state["board_size"] - 1 and b == 0:
-                positions.extend([[a - 1, 0], [a, b + 1]])
-                return positions
+                positions.extend([[a + 1, b], [a, b + 1]]);
+                return positions;
+            elif a == state["board size"] - 1 and b == state["board size"] - 1:
+                positions.extend([[a, b - 1], [a - 1, b]]);
+                return positions;
+            elif a == 0 and b == state["board size"] - 1:
+                positions.extend([[0, b - 1], [a + 1, b]]);
+                return positions;
+            elif a == state["board size"] - 1 and b == 0:
+                positions.extend([[a - 1, 0], [a, b + 1]]);
+                return positions;
             elif a == 0:
-                positions.extend([[a, b + 1], [a, b - 1], [a + 1, b]])
-                return positions
-            elif a == state["board_size"] - 1:
-                positions.extend([[a, b + 1], [a, b - 1], [a - 1, b]])
-                return positions
+                positions.extend([[a, b + 1], [a, b - 1], [a + 1, b]]);
+                return positions;
+            elif a == state["board size"] - 1:
+                positions.extend([[a, b + 1], [a, b - 1], [a - 1, b]]);
+                return positions;
             elif b == 0:
-                positions.extend([[a - 1, b], [a + 1, b], [a, b + 1]])
-                return positions
-            elif b == state["board_size"] - 1:
-                positions.extend([[a - 1, b], [a + 1, b], [a, b - 1]])
-                return positions
+                positions.extend([[a - 1, b], [a + 1, b], [a, b + 1]]);
+                return positions;
+            elif b == state["board size"] - 1:
+                positions.extend([[a - 1, b], [a + 1, b], [a, b - 1]]);
+                return positions;
             else:
-                positions.extend([[a - 1, b], [a + 1, b], [a, b - 1], [a, b + 1]])
-                return positions
-            
-        def strings(state):
+                positions.extend([[a - 1, b], [a + 1, b], [a, b - 1], [a, b + 1]]);
+                return positions;
 
-            length_pre = 0
-            length_aft = 0
-            index = 1
-            all_strings = {}
-            string = []
-
-            print(state)
+        def in_dict(elem, dictionary):   # checks if a given coordinate [a, b] is already cointained in the dictionary of strings ..input..elem = [a, b] 
+            for key, value in dictionary.items():
+                for array in value:
+                    if elem == array:
+                        return [1, key]
+            return [0, 0]
             
-            for i in range(0, state["board_size"] - 1):
-                for j in range(0, state["board_size"] - 1):
-                    print(i, j)
-                    if state["board"][i][j] == str(state["next_player"]) and (i, j) not in string:
-                        string.append([i, j])
-                        length_pre = len(string)
-                        print(string)
+        def strings(state):   # builds a dictionary of the strings at a given game state
+            
+            count = 0;
+            all_strings = {};
+            level = [];
+            
+            for i in range(0, state["board size"]):
+                for j in range(0, state["board size"]):
+                    if state["board"][i][j] == str(state["next player"]) and in_dict([i, j], all_strings)[0] == 0:
+                        count = 0;
+                        level = [[i, j]];
+                        all_strings[str(i)+ str(j)] = [[level[0][0], level[0][1]]]
                         while True:
-                            for elem in string[length_pre - 1:]:
-                                print("1", *list(elem))
-                                print("2", adjacents(*list(elem), state))
-                                for x, y in adjacents(*list(elem), state):
-                                    print("X Y", x, y)
-                                    if state["board"][x][y] == str(state["next_player"]) and [x, y] not in string:
-                                        print(string)
-                                        string.append((x, y))
-                            length_pre = length_aft
-                            length_aft = len(string)
-
-                            if length_pre == length_aft:
-                                all_strings[str(index)] = string
-                                index+=1
+                            for adj in adjacents(level[0][0], level[0][1], state):
+                                if state["board"][adj[0]][adj[1]] == str(state["next player"]) and in_dict([adj[0], adj[1]], all_strings)[0] == 0:
+                                    all_strings[str(i)+ str(j)].append([adj[0], adj[1]]);
+                                    level.append([adj[0], adj[1]])
+                                    count+=1;
+                            level.pop(0);
+                            if level == []:
                                 break
-                            else:
-                                continue
-
-            return all_strings
-
-        dict_of_strings = strings(s)
-
+                                                 
+            return all_strings;
+            
+        dict_of_strings = strings(s);
         print(dict_of_strings)
 
         for (k, v) in dict_of_strings.items():
+            count = 0;
             for elem in v:
-                count = 0
-                for (coord_1, coord_2) in adjacents(*list(elem), s):
-                    if s["board"][coord_1][coord_2] == str(s["next_player"]):
+                for (coord_1, coord_2) in adjacents(*elem, s):
+                    if s["board"][coord_1][coord_2] == '0':
                         count+=1
-                if count == 0:
-                    return 1
-
-        return 0
+                        break
+            if count == 0:
+                return 0;     # terminal state
+                
+        return 1;     #non-terminal state       
         
     def utility(self, s, p): 
 
