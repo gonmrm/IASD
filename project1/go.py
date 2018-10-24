@@ -52,7 +52,7 @@ class Game():
         try:
             with open(board_file, 'r+') as file:
                 
-                self.state = self.load_board(file)
+                self.state = self.load_board(file);
 
         except Exception as e:
             print('__init__: {}'.format(e))
@@ -79,25 +79,25 @@ class Game():
             if a == 0 and b == 0:
                 positions.extend([[a + 1, b], [a, b + 1]]);
                 return positions;
-            elif a == state["board size"] - 1 and b == state["board size"] - 1:
+            elif a == state["board_size"] - 1 and b == state["board_size"] - 1:
                 positions.extend([[a, b - 1], [a - 1, b]]);
                 return positions;
-            elif a == 0 and b == state["board size"] - 1:
+            elif a == 0 and b == state["board_size"] - 1:
                 positions.extend([[0, b - 1], [a + 1, b]]);
                 return positions;
-            elif a == state["board size"] - 1 and b == 0:
+            elif a == state["board_size"] - 1 and b == 0:
                 positions.extend([[a - 1, 0], [a, b + 1]]);
                 return positions;
             elif a == 0:
                 positions.extend([[a, b + 1], [a, b - 1], [a + 1, b]]);
                 return positions;
-            elif a == state["board size"] - 1:
+            elif a == state["board_size"] - 1:
                 positions.extend([[a, b + 1], [a, b - 1], [a - 1, b]]);
                 return positions;
             elif b == 0:
                 positions.extend([[a - 1, b], [a + 1, b], [a, b + 1]]);
                 return positions;
-            elif b == state["board size"] - 1:
+            elif b == state["board_size"] - 1:
                 positions.extend([[a - 1, b], [a + 1, b], [a, b - 1]]);
                 return positions;
             else:
@@ -117,15 +117,15 @@ class Game():
             all_strings = {};
             level = [];
             
-            for i in range(0, state["board size"]):
-                for j in range(0, state["board size"]):
-                    if state["board"][i][j] == str(state["next player"]) and in_dict([i, j], all_strings)[0] == 0:
+            for i in range(0, state["board_size"]):
+                for j in range(0, state["board_size"]):
+                    if state["board"][i][j] == str(state["next_player"]) and in_dict([i, j], all_strings)[0] == 0:
                         count = 0;
                         level = [[i, j]];
                         all_strings[str(i)+ str(j)] = [[level[0][0], level[0][1]]]
                         while True:
                             for adj in adjacents(level[0][0], level[0][1], state):
-                                if state["board"][adj[0]][adj[1]] == str(state["next player"]) and in_dict([adj[0], adj[1]], all_strings)[0] == 0:
+                                if state["board"][adj[0]][adj[1]] == str(state["next_player"]) and in_dict([adj[0], adj[1]], all_strings)[0] == 0:
                                     all_strings[str(i)+ str(j)].append([adj[0], adj[1]]);
                                     level.append([adj[0], adj[1]])
                                     count+=1;
@@ -136,7 +136,6 @@ class Game():
             return all_strings;
             
         dict_of_strings = strings(s);
-        print(dict_of_strings)
 
         for (k, v) in dict_of_strings.items():
             count = 0;
@@ -157,6 +156,20 @@ class Game():
         (1 if p wins, -1 if p loses, 0 in case of a draw), otherwise, 
         its evaluation with respect to player p
         """
+
+        if self.terminal_test(s) == 0:
+            for i in range(0, s["board_size"]):
+                for j in range(0, s["board_size"]):
+                    if s["board"][i][j] == 0:
+                        if self.to_move(s) == p:
+                            return -1
+                        else:
+                            return 1
+            return 0
+                        
+        elif self.terminal_test(s) == 1:
+            return 2
+            
     def actions(self, s): 
 
         """
@@ -167,10 +180,11 @@ class Game():
         i = 1
         j = 1
         actions=[]
+        
         for line in board:
             for point in line:
                 if point == str(0):
-                    adj = self.adjacents2(board,i,j)
+                    adj = self.adjacents2(board, i, j)
                     free = 1
                     for place in adj:
                         if board[place[0]][place[1]] == str(0):
@@ -183,8 +197,9 @@ class Game():
                             test_state=self.result(s,(p,i,j))
                             if not self.terminal_test(test_state):
                                 actions.append((p,i,j))
-                j=j+1
-            i=i+1
+                j+=1
+            i+=1
+            
         return actions
 
     def adjacents2(self, state, a, b):
@@ -243,8 +258,6 @@ class Game():
             s["next_player"] = 1
 
         return s
-
-
         
     def load_board(self, file_stream):
 
@@ -286,6 +299,22 @@ class Game():
 
 ################################################################################################################
 
-#atari_go = Game("initial_state.txt")
-#print(atari_go.state)
-#atari_go.terminal_test(atari_go.state)
+finish = 0
+action = ()
+
+atari_go = Game("board.txt")
+
+while True:
+    finish = atari_go.utility(atari_go.state, atari_go.to_move(atari_go.state))
+    print("Finish ", finish)
+
+    if finish == 1 or finish == -1 or finish == 0:
+        break
+    else:
+        pass
+
+    action = alphabeta_cutoff_search(atari_go.state, atari_go)
+    print("Action ", action)
+
+    atari_go.result(atari_go.state, action)
+    print(atari_go.state)
