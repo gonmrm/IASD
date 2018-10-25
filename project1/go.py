@@ -105,10 +105,12 @@ class Game():
                         for place in adj:
                             if board[place[0]][place[1]] == str(0):
                                 actions.append((p,i,j))
+                                break
                             else:
                                 test_state=self.result(s,(p,i,j))
                                 if self.terminal_test(test_state):
                                     actions.append((p,i,j))
+                                    break
 
                 j+=1
             j = 1
