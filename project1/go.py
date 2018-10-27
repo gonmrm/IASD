@@ -96,7 +96,6 @@ class Game():
         i = 1
         j = 1
         actions=[]
-        state = {"board":board, "next_player":p}
         
         for line in board:
             for point in line:
@@ -108,7 +107,7 @@ class Game():
                                 actions.append((p,i,j))
                                 break
                             else:
-                                test_state=self.result(state,(p,i,j))
+                                test_state=self.result(s,(p,i,j))
                                 if self.terminal_test(test_state):
                                     actions.append((p,i,j))
                                     break
