@@ -96,6 +96,7 @@ class Game():
         i = 1
         j = 1
         actions=[]
+        state = {"board":board, "next_player":p}
         
         for line in board:
             for point in line:
@@ -106,7 +107,7 @@ class Game():
                             if board[place[0]][place[1]] == str(0):
                                 actions.append((p,i,j))
                             else:
-                                test_state=self.result(s,(p,i,j))
+                                test_state=self.result(state,(p,i,j))
                                 if self.terminal_test(test_state):
                                     actions.append((p,i,j))
 
@@ -156,6 +157,23 @@ class Game():
             return positions
 
 
+
+    def copy_board(self, board):
+
+        """
+        It will copy board element by element, not returning a pointer but a new board in memory
+        """
+        new_board = []
+
+        for line in board:
+            new_board.append([])
+            for point in line:
+                new_board[-1].append(point)
+
+        return new_board
+
+
+
     def result(self, s, a):
 
         """
@@ -165,14 +183,18 @@ class Game():
         player  = a[0]
         line = a[1]
         column = a[2]
+        board = self.copy_board(s["board"])
 
-        s["board"][line - 1][column - 1] = str(player)
+        board[line - 1][column - 1] = str(player)
         if player == 1:
-            s["next_player"] = 2
+            next_player = 2
         else:
-            s["next_player"] = 1
+            next_player = 1
 
-        return s
+        return {
+            "board": board,
+            "next_player": next_player
+        }
         
     def load_board(self, file_stream):
 
