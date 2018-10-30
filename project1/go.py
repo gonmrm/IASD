@@ -82,9 +82,9 @@ class Game():
             return 0
                         
         else:
-            return self.territory(s)
+            return self.territory(s,p)
     
-    def territory(self,s):
+    def territory(self,s, p):
         
         N = len(s["board"])
         whites_points = 0
@@ -126,10 +126,10 @@ class Game():
                         elif score_board[i][j]>0:
                             blacks_points+=1
         
-        if s["next_player"] == 1:    #confirmar
+        if p == 1:    #confirmar
             return blacks_points - whites_points
         
-        elif s["next_player"] == 2:
+        elif p == 2:
             return whites_points - blacks_points
 
     def area_scoring(self, s):  #só conta as peças de cada jogador por enquanto
@@ -176,12 +176,13 @@ class Game():
                             else:
                                 test_state=self.result(s,(p,i,j))
                                 if self.terminal_test(test_state):
-                                    actions.append((p,i,j))
-                                    break
+                                    if self.utility(test_state, p)==1:  # Se o jogador atual beneficia desta ação, a ação é possível
+                                        actions.append((p,i,j))         # Se o jogador atual perde com esta ação, a ação é suicida
+                                        break
 
                 j+=1
             j = 1
-            i+=1
+            i +=1
 
         return actions
 
