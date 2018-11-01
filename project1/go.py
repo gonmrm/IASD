@@ -1,6 +1,65 @@
+infinity = 999999999
+
+def alphabeta_cutoff_search(state, game, d=4, cutoff_test=None, eval_fn=None): 
+    """Search game to determine best action; use alpha-beta pruning.
+    This version cuts off search and uses an evaluation function."""
+
+    player = game.to_move(state)
+
+    # Functions used by alphabeta
+    def max_value(state, alpha, beta, depth):
+        if cutoff_test(state, depth):
+            return eval_fn(state)
+        v = -infinity
+        for a in game.actions(state):
+            v = max(v, min_value(game.result(state, a),
+                                 alpha, beta, depth + 1))
+            if v >= beta:
+                return v
+            alpha = max(alpha, v)
+        return v
+    
+    def min_value(state, alpha, beta, depth):
+        if cutoff_test(state, depth):
+            return eval_fn(state)
+        v = infinity
+        for a in game.actions(state):
+            v = min(v, max_value(game.result(state, a),
+                                 alpha, beta, depth + 1))
+            if v <= alpha:
+                return v
+            beta = min(beta, v)
+        return v
+
+    # Body of alphabeta_cutoff_search starts here:
+    # The default test cuts off at depth d or at a terminal state
+    cutoff_test = (cutoff_test or
+                   (lambda state, depth: depth > d or
+                    game.terminal_test(state)))
+    eval_fn = eval_fn or (lambda state: game.utility(state, player))
+    best_score = -infinity
+    beta = infinity
+    best_action = None
+    for a in game.actions(state):
+        v = min_value(game.result(state, a), best_score, beta, 1)
+        if v > best_score:
+            best_score = v
+            best_action = a
+    return best_action
+
 class Game():
 
-    
+    def __init__(self, board_file):
+
+        try:
+            with open(board_file, 'r+') as file:
+                
+                self.state = self.load_board(file)
+
+        except Exception as e:
+            print('__init__: {}'.format(e))
+            return
+
     def to_move(self, s):
 
         """
@@ -56,9 +115,13 @@ class Game():
                     if s["board"][coord_1][coord_2] == '0':
                         count+=1
                         break
+                if count>0:
+                    break
             if count == 0:
+                print("TERMINAL TEST TRUE ")
                 return True     # terminal state
                 
+        print("TERMINAL TEST FALSE ")
         return False     #non-terminal state       
         
     def utility(self, s, p): 
@@ -71,10 +134,10 @@ class Game():
 
         board_size = len(s["board"])
 
-        if self.terminal_test(s):
+        if self.terminal_test(s) is True:
             for i in range(0, board_size):
                 for j in range(0, board_size):
-                    if s["board"][i][j] == 0:
+                    if s["board"][i][j] == str(0):
                         if self.to_move(s) == p:
                             return -1
                         else:
@@ -82,9 +145,9 @@ class Game():
             return 0
                         
         else:
-            return self.territory(s,p)
+            return self.territory(s) + 2
     
-    def territory(self,s, p):
+    def territory(self,s):
         
         N = len(s["board"])
         whites_points = 0
@@ -102,18 +165,15 @@ class Game():
                     elif s["board"][i][j] == str(2): # white stones
                         score_board[i][j] = "b"
 
-        for line in s["board"]:
-            print(line)
-
         for i in range(0, N):  
                 for j in range(0, N):
                     if score_board[i][j] == 'a':
-                        adj = self.adjacents2(i,j,s)
+                        adj = self.adjacents(i,j,s)
                         for position in adj:
                             if(s["board"][position[0]][position[1]]!=str(1) and s["board"][position[0]][position[1]]!=str(2)):
                                 score_board[position[0]][position[1]]+=1
                     elif score_board[i][j] == 'b':
-                        adj = self.adjacents2(i,j,s)
+                        adj = self.adjacents(i,j,s)
                         for position in adj:
                             if(s["board"][position[0]][position[1]]!=str(1) and s["board"][position[0]][position[1]]!=str(2)):
                                 score_board[position[0]][position[1]]-=1
@@ -126,10 +186,10 @@ class Game():
                         elif score_board[i][j]>0:
                             blacks_points+=1
         
-        if p == 1:    #confirmar
+        if s["next_player"] == 1:    #confirmar
             return blacks_points - whites_points
         
-        elif p == 2:
+        elif s["next_player"] == 2:
             return whites_points - blacks_points
 
     def area_scoring(self, s):  #só conta as peças de cada jogador por enquanto
@@ -145,8 +205,6 @@ class Game():
                     elif s["board"][i][j] == str(2):
                         whites_points+=1
         
-        
-    
         if s["next_player"] == 1:
             return blacks_points - whites_points
         
@@ -158,34 +216,20 @@ class Game():
         """
         Returns a list of valid moves at state s
         """
-        p = s["next_player"]
-        board = s["board"]
-        i = 1
-        j = 1
-        actions=[]
         
-        for line in board:
-            for point in line:
-                if point == str(0):
-                    adj = self.adjacents(i - 1, j - 1, s)
-                    if type(adj) is list:
-                        for place in adj:
-                            if board[place[0]][place[1]] == str(0):
-                                actions.append((p,i,j))
-                                break
-                            else:
-                                test_state=self.result(s,(p,i,j))
-                                if self.terminal_test(test_state):
-                                    if self.utility(test_state, p)==1:  # Se o jogador atual beneficia desta ação, a ação é possível
-                                        actions.append((p,i,j))         # Se o jogador atual perde com esta ação, a ação é suicida
-                                        break
-
-                j+=1
-            j = 1
-            i +=1
-
+        board_size = len(s["board"])
+        p = s["next_player"]
+        actions = []
+        
+        for i in range(0, board_size):
+            for j in range(0, board_size):
+                if s["board"][i][j] == str(0):
+                    if self.terminal_test(self.result(s, (p, i, j))) == True:
+                        if self.utility(self.result(s, (p, i, j)), p) != -1:
+                            actions.append((p, i+1, j+1))
+        print("ACTIONS ", actions)
         return actions
-
+        
     def adjacents(self, a, b, state):
         """
         Returns points surrounding a given (a,b) point
@@ -222,44 +266,6 @@ class Game():
             return positions
         else:                       # Every other case
             positions.extend([[a - 1, b], [a + 1, b], [a, b - 1], [a, b + 1]])
-            return positions
-
-    def adjacents2(self, a, b, state):
-        """
-        Returns points surrounding a given (a,b) point
-        """
-        N = len(state["board"])
-        positions = []
-
-        if a == 0 and b == 0:       # Upper left corner
-            positions.extend([[a + 1, b], [a, b + 1], [a + 1, b + 1]])
-            return positions
-        elif a == N-1 and b == N-1:     # Bottom right corner
-            positions.extend([[a, b - 1], [a - 1, b], [a - 1, b - 1]])
-            return positions
-        elif a == 0 and b == N-1:     # Upper right corner
-            positions.extend([[a, b - 1], [a + 1, b], [a + 1, b - 1]])
-            return positions
-        elif a == N-1 and b == 0:     # Bottom left corner
-            positions.extend([[a - 1, b], [a, b + 1], [a - 1, b + 1]])
-            return positions
-        elif a > N-1 or b > N-1:
-            print("Position does not exist in board!!") # Impossible cases
-            return 0
-        elif a == 0:                # Upper side
-            positions.extend([[a, b + 1], [a, b - 1], [a + 1, b], [a + 1, b + 1], [a + 1, b - 1]])
-            return positions
-        elif a == N-1:                # Bottom side
-            positions.extend([[a, b + 1], [a, b - 1], [a - 1, b], [a - 1, b - 1], [a - 1, b + 1]])
-            return positions
-        elif b == 0:                # Left side
-            positions.extend([[a - 1, b], [a + 1, b], [a, b + 1], [a + 1, b + 1], [a - 1, b + 1]])
-            return positions
-        elif b == N-1:                # Right side
-            positions.extend([[a - 1, b], [a + 1, b], [a, b - 1], [a - 1, b - 1], [a + 1, b - 1]])
-            return positions
-        else:                       # Every other case
-            positions.extend([[a - 1, b], [a + 1, b], [a, b - 1], [a, b + 1], [a + 1, b + 1], [a - 1, b - 1], [a - 1, b + 1], [a + 1, b - 1]])
             return positions
 
     def copy_board(self, board):
@@ -334,3 +340,24 @@ class Game():
             print('ERROR - load_board: {}'.format(e))
 
         return current_state
+
+################################################################################################################
+
+finish = 0
+action = ()
+
+atari_go = Game("board.txt")
+print(atari_go.state)
+
+while True:
+    finish = atari_go.utility(atari_go.state, atari_go.to_move(atari_go.state))
+    print("Finish ", finish)
+
+    if finish == 1 or finish == -1 or finish == 0:
+        break
+    
+    action = alphabeta_cutoff_search(atari_go.state, atari_go, eval_fn = atari_go.terminal_test)
+    print("Action ", action)
+
+    atari_go.state = atari_go.result(atari_go.state, action)
+    print("State ", atari_go.state)
