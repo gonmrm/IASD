@@ -268,6 +268,44 @@ class Game():
             positions.extend([[a - 1, b], [a + 1, b], [a, b - 1], [a, b + 1]])
             return positions
 
+    def adjacents2(self, a, b, state):
+        """
+        Returns points surrounding a given (a,b) point
+        """
+        N = len(state["board"])
+        positions = []
+
+        if a == 0 and b == 0:       # Upper left corner
+            positions.extend([[a + 1, b], [a, b + 1], [a + 1, b + 1]])
+            return positions
+        elif a == N-1 and b == N-1:     # Bottom right corner
+            positions.extend([[a, b - 1], [a - 1, b], [a - 1, b - 1]])
+            return positions
+        elif a == 0 and b == N-1:     # Upper right corner
+            positions.extend([[a, b - 1], [a + 1, b], [a + 1, b - 1]])
+            return positions
+        elif a == N-1 and b == 0:     # Bottom left corner
+            positions.extend([[a - 1, b], [a, b + 1], [a - 1, b + 1]])
+            return positions
+        elif a > N-1 or b > N-1:
+            print("Position does not exist in board!!") # Impossible cases
+            return 0
+        elif a == 0:                # Upper side
+            positions.extend([[a, b + 1], [a, b - 1], [a + 1, b], [a + 1, b - 1], [a + 1, b + 1]])
+            return positions
+        elif a == N-1:                # Bottom side
+            positions.extend([[a, b + 1], [a, b - 1], [a - 1, b], [a - 1, b - 1], [a - 1, b + 1]])
+            return positions
+        elif b == 0:                # Left side
+            positions.extend([[a - 1, b], [a + 1, b], [a, b + 1], [a - 1, b + 1], [a + 1, b + 1]])
+            return positions
+        elif b == N-1:                # Right side
+            positions.extend([[a - 1, b], [a + 1, b], [a, b - 1], [a + 1, b - 1], [a - 1, b - 1]])
+            return positions
+        else:                       # Every other case
+            positions.extend([[a - 1, b], [a + 1, b], [a, b - 1], [a, b + 1], [a + 1, b + 1], [a - 1, b - 1], [a - 1, b + 1], [a + 1, b - 1]])
+            return positions
+
     def copy_board(self, board):
 
         """
