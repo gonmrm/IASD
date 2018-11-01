@@ -1,7 +1,5 @@
 class Game():
 
-    player_winning = 0
-
     
     def to_move(self, s):
 
@@ -16,8 +14,6 @@ class Game():
         """
         Returns a boolean of whether state s is terminal
         """
-
-        print(s)
 
         def in_dict(elem, dictionary):   # checks if a given coordinate [a, b] is already cointained in the dictionary of strings ..input..elem = [a, b] 
             for key, value in dictionary.items():
@@ -63,36 +59,8 @@ class Game():
                 if count>0:
                     break
             if count == 0:
-                player_winning = s["next_player"]
                 return True     # terminal state
                 
-        other_board = self.copy_board(s["board"])
-        if s["next_player"] == 1:
-            player = 2
-        else:
-            player = 1
-
-        new_state = {
-            "board": other_board,
-            "next_player": player
-        }
-
-        dict_of_strings = strings(new_state)
-
-        for (k, v) in dict_of_strings.items():
-            count = 0
-            for elem in v:
-                for (coord_1, coord_2) in self.adjacents(elem[0], elem[1], new_state):
-                    if s["board"][coord_1][coord_2] == '0':
-                        count+=1
-                        break
-                if count>0:
-                    break
-            if count == 0:
-                player_winning = player
-                return True     # terminal state
-
-        player_winning = 0
         return False     #non-terminal state       
         
     def utility(self, s, p): 
@@ -104,8 +72,8 @@ class Game():
         """
 
         board_size = len(s["board"])
-        if self.terminal_test(s):
-            print("terminated!!!!!!!!!!!!")
+
+        if self.terminal_test(s) is True:
             for i in range(0, board_size):
                 for j in range(0, board_size):
                     if s["board"][i][j] == str(0):
@@ -116,24 +84,7 @@ class Game():
             return 0
                         
         else:
-            print("territory")
             return self.territory(s)
-            #return self.goncalo_utility(s, p)
-
-
-    def goncalo_utility(self, s, player):
-
-        """
-        Utiliy of goncalo when board is not in terminal phase - evaluation with respect to player p
-        """
-
-
-        
-        
-
-
-
-
     
     def territory(self,s):
         
@@ -178,13 +129,10 @@ class Game():
                             blacks_points+=1
         
         if s["next_player"] == 1:    #confirmar
-            print((blacks_points - whites_points) / 100)
-            return (blacks_points - whites_points) / 100
+            return blacks_points - whites_points
         
         elif s["next_player"] == 2:
-            print((whites_points - blacks_points) / 100)
-            return (whites_points - blacks_points) / 100
-
+            return whites_points - blacks_points
 
     def area_scoring(self, s):  #só conta as peças de cada jogador por enquanto
 
@@ -218,18 +166,7 @@ class Game():
         for i in range(0, board_size):
             for j in range(0, board_size):
                 if s["board"][i][j] == str(0):
-                    print("New pos: {},{}".format(i+1, j+1))
-                    state_result = self.result(s, (p, i+1,j+1))
-                    if p == 1:
-                        new_p = 2
-                    else:
-                        new_p = 1
-                    print(state_result)
-                    if self.terminal_test(s):
-                        pass
-                        """if winning_player é um determinado, appned
-                        """
-                    else:
+                    if self.utility(self.result(s, (p, i+1, j+1)), p) != -1:
                         actions.append((p, i+1, j+1))
         return actions
         
