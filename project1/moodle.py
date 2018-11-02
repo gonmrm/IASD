@@ -138,22 +138,35 @@ class Game():
         Utiliy of goncalo when board is not in terminal phase - evaluation with respect to player p
         """
 
-        strings_player = self.strings(board, player)
+        #strings_player = self.strings(board, player)
+
+        if player == 1:
+            other = 2
+        else:
+            other = 1
 
         N = len(board)
         zeros = 0
-        liberties = 0
+        liberties_player = 0
+        liberties_other = 0
+        liberties_player_increment = True
+        liberties_other_increment = True
 
         for i in range(0, N):  
             for j in range(0, N):
                 if board[i][j] == str(0):
                     zeros+=1
                     for (coord_1, coord_2) in self.adjacents(i, j, N):
-                        if board[coord_1][coord_2] == str(player):
-                            liberties+=1
-                            break
+                        if board[coord_1][coord_2] == str(player) and liberties_player_increment:
+                            liberties_player+=1
+                            liberties_player_increment = False
+                        elif board[coord_1][coord_2] == str(other) and liberties_other_increment:
+                            liberties_other+=1
+                            liberties_other_increment = False
+                    liberties_player_increment = True
+                    liberties_other_increment = True
         
-        return (liberties / zeros)
+        return (liberties_player - 1.5*liberties_other) / zeros
 
     def actions(self, s): 
 
