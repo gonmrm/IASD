@@ -116,8 +116,8 @@ class Game():
         (1 if p wins, -1 if p loses, 0 in case of a draw), otherwise, 
         its evaluation with respect to player p
         """
-
         winner = self.winner(s)
+        
         if winner > 0:
             for line in s["board"]:
                 if str(0) in line:
@@ -131,7 +131,6 @@ class Game():
         else:
             #return self.territory(s)
             return self.goncalo_utility(s["board"], p)
-
 
     def goncalo_utility(self, board, player):
 
@@ -153,81 +152,9 @@ class Game():
                         if board[coord_1][coord_2] == str(player):
                             liberties+=1
                             break
-
+        
         return (liberties / zeros)
 
-
-    
-    def territory(self,s):
-        
-        N = len(s["board"])
-        whites_points = 0
-        blacks_points = 0
-        score_board = self.copy_board(s["board"])
-
-        for i in range(0, N):  
-                for j in range(0, N):
-                    score_board[i][j] = 0
-
-        for i in range(0, N):  
-                for j in range(0, N):
-                    if s["board"][i][j] == str(1): # black stones
-                        score_board[i][j] = "a"
-                    elif s["board"][i][j] == str(2): # white stones
-                        score_board[i][j] = "b"
-
-        #for line in s["board"]:
-         #   print(line)
-
-        for i in range(0, N):  
-                for j in range(0, N):
-                    if score_board[i][j] == 'a':
-                        adj = self.adjacents(i,j,N)
-                        for position in adj:
-                            if(s["board"][position[0]][position[1]]!=str(1) and s["board"][position[0]][position[1]]!=str(2)):
-                                score_board[position[0]][position[1]]+=1
-                    elif score_board[i][j] == 'b':
-                        adj = self.adjacents(i,j,N)
-                        for position in adj:
-                            if(s["board"][position[0]][position[1]]!=str(1) and s["board"][position[0]][position[1]]!=str(2)):
-                                score_board[position[0]][position[1]]-=1
-
-        for i in range(0, N):  
-                for j in range(0, N):
-                    if type(score_board[i][j])== int:
-                        if score_board[i][j]<0:
-                            whites_points+=1
-                        elif score_board[i][j]>0:
-                            blacks_points+=1
-        
-        if s["next_player"] == 1:    #confirmar
-            print((blacks_points - whites_points) / 100)
-            return (blacks_points - whites_points) / 100
-        
-        elif s["next_player"] == 2:
-            print((whites_points - blacks_points) / 100)
-            return (whites_points - blacks_points) / 100
-
-
-    def area_scoring(self, s):  #só conta as peças de cada jogador por enquanto
-
-        whites_points = 0
-        blacks_points = 0
-        board_size = len(s["board"])
-
-        for i in range(0, board_size):  
-                for j in range(0, board_size):
-                    if s["board"][i][j] == str(1):
-                        blacks_points+=1
-                    elif s["board"][i][j] == str(2):
-                        whites_points+=1
-        
-        if s["next_player"] == 1:
-            return blacks_points - whites_points
-        
-        elif s["next_player"] == 2:
-            return whites_points - blacks_points
-            
     def actions(self, s): 
 
         """
@@ -249,80 +176,22 @@ class Game():
                         actions.append((p, i+1, j+1))
         return actions
         
-    def adjacents(self, a, b, board_size):
+    def adjacents(self, a, b, N):
         """
         Returns points surrounding a given (a,b) point
         """
-
         positions = []
 
-        if a == 0 and b == 0:       # Upper left corner
-            positions.extend([[a + 1, b], [a, b + 1]])
-            return positions
-        elif a == board_size-1 and b == board_size-1:     # Bottom right corner
-            positions.extend([[a, b - 1], [a - 1, b]])
-            return positions
-        elif a == 0 and b == board_size-1:     # Upper right corner
-            positions.extend([[a, b - 1], [a + 1, b]])
-            return positions
-        elif a == board_size-1 and b == 0:     # Bottom left corner
-            positions.extend([[a - 1, b], [a, b + 1]])
-            return positions
-        elif a > board_size-1 or b > board_size-1:
-            print("Position does not exist in board!!") # Impossible cases
-            return 0
-        elif a == 0:                # Upper side
-            positions.extend([[a, b + 1], [a, b - 1], [a + 1, b]])
-            return positions
-        elif a == board_size-1:                # Bottom side
-            positions.extend([[a, b + 1], [a, b - 1], [a - 1, b]])
-            return positions
-        elif b == 0:                # Left side
-            positions.extend([[a - 1, b], [a + 1, b], [a, b + 1]])
-            return positions
-        elif b == board_size-1:                # Right side
-            positions.extend([[a - 1, b], [a + 1, b], [a, b - 1]])
-            return positions
-        else:                       # Every other case
-            positions.extend([[a - 1, b], [a + 1, b], [a, b - 1], [a, b + 1]])
-            return positions
+        if a-1>=0:
+            positions.append([a-1,b])
+        if a+1<N:
+            positions.append([a+1,b])
+        if b-1>=0:
+            positions.append([a,b-1])
+        if b+1<N:
+            positions.append([a,b+1])
 
-    def adjacents2(self, a, b, state):
-        """
-        Returns points surrounding a given (a,b) point
-        """
-        N = len(state["board"])
-        positions = []
-
-        if a == 0 and b == 0:       # Upper left corner
-            positions.extend([[a + 1, b], [a, b + 1], [a + 1, b + 1]])
-            return positions
-        elif a == N-1 and b == N-1:     # Bottom right corner
-            positions.extend([[a, b - 1], [a - 1, b], [a - 1, b - 1]])
-            return positions
-        elif a == 0 and b == N-1:     # Upper right corner
-            positions.extend([[a, b - 1], [a + 1, b], [a + 1, b - 1]])
-            return positions
-        elif a == N-1 and b == 0:     # Bottom left corner
-            positions.extend([[a - 1, b], [a, b + 1], [a - 1, b + 1]])
-            return positions
-        elif a > N-1 or b > N-1:
-            print("Position does not exist in board!!") # Impossible cases
-            return 0
-        elif a == 0:                # Upper side
-            positions.extend([[a, b + 1], [a, b - 1], [a + 1, b], [a + 1, b - 1], [a + 1, b + 1]])
-            return positions
-        elif a == N-1:                # Bottom side
-            positions.extend([[a, b + 1], [a, b - 1], [a - 1, b], [a - 1, b - 1], [a - 1, b + 1]])
-            return positions
-        elif b == 0:                # Left side
-            positions.extend([[a - 1, b], [a + 1, b], [a, b + 1], [a - 1, b + 1], [a + 1, b + 1]])
-            return positions
-        elif b == N-1:                # Right side
-            positions.extend([[a - 1, b], [a + 1, b], [a, b - 1], [a + 1, b - 1], [a - 1, b - 1]])
-            return positions
-        else:                       # Every other case
-            positions.extend([[a - 1, b], [a + 1, b], [a, b - 1], [a, b + 1], [a + 1, b + 1], [a - 1, b - 1], [a - 1, b + 1], [a + 1, b - 1]])
+        return positions
 
     def copy_board(self, board):
 
