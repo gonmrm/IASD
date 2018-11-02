@@ -332,9 +332,7 @@ class Game():
         new_board = []
 
         for line in board:
-            new_board.append([])
-            for point in line:
-                new_board[-1].append(point)
+            new_board.append(line)
 
         return new_board
 
