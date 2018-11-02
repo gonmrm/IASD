@@ -1,7 +1,5 @@
 class Game():
 
-    player_winning = 0
-
     
     def to_move(self, s):
 
@@ -11,89 +9,105 @@ class Game():
 
         return s["next_player"]
 
+            
+    def strings(self, board, player):   # builds a dictionary of strings at a given game state
+
+
+        def in_dict(elem, dictionary):   # checks if a given coordinate [a, b] is already cointained in the dictionary of strings ..input..elem = [a, b]
+            for key in dictionary:
+                if elem in dictionary[key]:
+                    return [1, key]   # contained
+            return [0, 0] # not-contained
+
+        count = 0
+        all_strings = {}
+        level = []
+        board_size = len(board)
+        
+        for i in range(0, board_size):
+            for j in range(0, board_size):
+                if board[i][j] == str(player) and in_dict([i, j], all_strings)[0] == 0:
+                    count = 0
+                    level = [[i, j]]
+                    all_strings[str(i)+ str(j)] = [[level[0][0], level[0][1]]]
+                    while True:
+                        for adj in self.adjacents(level[0][0], level[0][1], board_size):
+                            if board[adj[0]][adj[1]] == str(player) and in_dict([adj[0], adj[1]], all_strings)[0] == 0:
+                                all_strings[str(i)+ str(j)].append([adj[0], adj[1]])
+                                level.append([adj[0], adj[1]])
+                                count+=1
+                        level.pop(0)
+                        if level == []:
+                            break
+                                             
+        return all_strings
+
+
+    def winner(self, s):
+
+        """
+        Returns winning player. Note: does not account for draws
+        : 1 for player 1
+        : 2 for player 2
+        : 0 for non terminal
+        """
+
+        strings_player_1 = self.strings(s["board"], 1)
+        strings_player_2 = self.strings(s["board"], 2)
+        board_size = len(s["board"])
+
+        player_1_locked = False
+        player_2_locked = False
+
+        for (k, v) in strings_player_1.items():
+            count = 0
+            for elem in v:
+                for (coord_1, coord_2) in self.adjacents(elem[0], elem[1], board_size):
+                    if s["board"][coord_1][coord_2] == '0':
+                        count+=1
+                        break
+                if count>0:
+                    break
+            if count == 0:
+                player_1_locked = True
+
+        for (k, v) in strings_player_2.items():
+            count = 0
+            for elem in v:
+                for (coord_1, coord_2) in self.adjacents(elem[0], elem[1], board_size):
+                    if s["board"][coord_1][coord_2] == '0':
+                        count+=1
+                        break
+                if count>0:
+                    break
+            if count == 0:
+                player_2_locked = True
+
+        if player_1_locked and player_2_locked:
+            # previous player locked itself to locker next player, so next player looses
+            if s["next_player"] == 1:
+                return 2
+            else:
+                return 1
+        elif player_1_locked:
+            return 2
+        elif player_2_locked:
+            return 1
+        else:
+            return 0
+
+
     def terminal_test(self, s): 
 
         """
         Returns a boolean of whether state s is terminal
         """
 
-        print(s)
-
-        def in_dict(elem, dictionary):   # checks if a given coordinate [a, b] is already cointained in the dictionary of strings ..input..elem = [a, b] 
-            for key, value in dictionary.items():
-                for array in value:
-                    if elem == array:
-                        return [1, key]   # contained
-            return [0, 0] # not-contained
-            
-        def strings(state):   # builds a dictionary of strings at a given game state
-            
-            count = 0
-            all_strings = {}
-            level = []
-            board_size = len(state["board"])
-            
-            for i in range(0, board_size):
-                for j in range(0, board_size):
-                    if state["board"][i][j] == str(state["next_player"]) and in_dict([i, j], all_strings)[0] == 0:
-                        count = 0
-                        level = [[i, j]]
-                        all_strings[str(i)+ str(j)] = [[level[0][0], level[0][1]]]
-                        while True:
-                            for adj in self.adjacents(level[0][0], level[0][1], state):
-                                if state["board"][adj[0]][adj[1]] == str(state["next_player"]) and in_dict([adj[0], adj[1]], all_strings)[0] == 0:
-                                    all_strings[str(i)+ str(j)].append([adj[0], adj[1]])
-                                    level.append([adj[0], adj[1]])
-                                    count+=1
-                            level.pop(0)
-                            if level == []:
-                                break
-                                                 
-            return all_strings
-            
-        dict_of_strings = strings(s)
-
-        for (k, v) in dict_of_strings.items():
-            count = 0
-            for elem in v:
-                for (coord_1, coord_2) in self.adjacents(elem[0], elem[1], s):
-                    if s["board"][coord_1][coord_2] == '0':
-                        count+=1
-                        break
-                if count>0:
-                    break
-            if count == 0:
-                player_winning = s["next_player"]
-                return True     # terminal state
-                
-        other_board = self.copy_board(s["board"])
-        if s["next_player"] == 1:
-            player = 2
+        if self.winner(s) == 0:
+            return False
         else:
-            player = 1
+            return True
 
-        new_state = {
-            "board": other_board,
-            "next_player": player
-        }
-
-        dict_of_strings = strings(new_state)
-
-        for (k, v) in dict_of_strings.items():
-            count = 0
-            for elem in v:
-                for (coord_1, coord_2) in self.adjacents(elem[0], elem[1], new_state):
-                    if s["board"][coord_1][coord_2] == '0':
-                        count+=1
-                        break
-                if count>0:
-                    break
-            if count == 0:
-                player_winning = player
-                return True     # terminal state
-
-        player_winning = 0
-        return False     #non-terminal state       
         
     def utility(self, s, p): 
 
@@ -103,35 +117,44 @@ class Game():
         its evaluation with respect to player p
         """
 
-        board_size = len(s["board"])
-        if self.terminal_test(s):
-            print("terminated!!!!!!!!!!!!")
-            for i in range(0, board_size):
-                for j in range(0, board_size):
-                    if s["board"][i][j] == str(0):
-                        if self.to_move(s) == p:
-                            return -1
-                        else:
-                            return 1
+        winner = self.winner(s)
+        if winner > 0:
+            for line in s["board"]:
+                if str(0) in line:
+                    if winner == p:
+                        return 1
+                    else:
+                        return -1
             return 0
+
                         
         else:
-            print("territory")
-            return self.territory(s)
-            #return self.goncalo_utility(s, p)
+            #return self.territory(s)
+            return self.goncalo_utility(s["board"], p)
 
 
-    def goncalo_utility(self, s, player):
+    def goncalo_utility(self, board, player):
 
         """
         Utiliy of goncalo when board is not in terminal phase - evaluation with respect to player p
         """
 
+        strings_player = self.strings(board, player)
 
-        
-        
+        N = len(board)
+        zeros = 0
+        liberties = 0
 
+        for i in range(0, N):  
+            for j in range(0, N):
+                if board[i][j] == str(0):
+                    zeros+=1
+                    for (coord_1, coord_2) in self.adjacents(i, j, N):
+                        if board[coord_1][coord_2] == str(player):
+                            liberties+=1
+                            break
 
+        return (liberties / zeros)
 
 
     
@@ -159,12 +182,12 @@ class Game():
         for i in range(0, N):  
                 for j in range(0, N):
                     if score_board[i][j] == 'a':
-                        adj = self.adjacents(i,j,s)
+                        adj = self.adjacents(i,j,N)
                         for position in adj:
                             if(s["board"][position[0]][position[1]]!=str(1) and s["board"][position[0]][position[1]]!=str(2)):
                                 score_board[position[0]][position[1]]+=1
                     elif score_board[i][j] == 'b':
-                        adj = self.adjacents(i,j,s)
+                        adj = self.adjacents(i,j,N)
                         for position in adj:
                             if(s["board"][position[0]][position[1]]!=str(1) and s["board"][position[0]][position[1]]!=str(2)):
                                 score_board[position[0]][position[1]]-=1
@@ -218,53 +241,46 @@ class Game():
         for i in range(0, board_size):
             for j in range(0, board_size):
                 if s["board"][i][j] == str(0):
-                    print("New pos: {},{}".format(i+1, j+1))
-                    state_result = self.result(s, (p, i+1,j+1))
-                    if p == 1:
-                        new_p = 2
-                    else:
-                        new_p = 1
-                    print(state_result)
-                    if self.terminal_test(s):
-                        pass
-                        """if winning_player é um determinado, appned
-                        """
+                    winner = self.winner(self.result(s, (p, i+1,j+1)))
+                    if winner > 0:
+                        if winner == p:
+                            actions.append((p, i+1, j+1))
                     else:
                         actions.append((p, i+1, j+1))
         return actions
         
-    def adjacents(self, a, b, state):
+    def adjacents(self, a, b, board_size):
         """
         Returns points surrounding a given (a,b) point
         """
-        N = len(state["board"])
+
         positions = []
 
         if a == 0 and b == 0:       # Upper left corner
             positions.extend([[a + 1, b], [a, b + 1]])
             return positions
-        elif a == N-1 and b == N-1:     # Bottom right corner
+        elif a == board_size-1 and b == board_size-1:     # Bottom right corner
             positions.extend([[a, b - 1], [a - 1, b]])
             return positions
-        elif a == 0 and b == N-1:     # Upper right corner
+        elif a == 0 and b == board_size-1:     # Upper right corner
             positions.extend([[a, b - 1], [a + 1, b]])
             return positions
-        elif a == N-1 and b == 0:     # Bottom left corner
+        elif a == board_size-1 and b == 0:     # Bottom left corner
             positions.extend([[a - 1, b], [a, b + 1]])
             return positions
-        elif a > N-1 or b > N-1:
+        elif a > board_size-1 or b > board_size-1:
             print("Position does not exist in board!!") # Impossible cases
             return 0
         elif a == 0:                # Upper side
             positions.extend([[a, b + 1], [a, b - 1], [a + 1, b]])
             return positions
-        elif a == N-1:                # Bottom side
+        elif a == board_size-1:                # Bottom side
             positions.extend([[a, b + 1], [a, b - 1], [a - 1, b]])
             return positions
         elif b == 0:                # Left side
             positions.extend([[a - 1, b], [a + 1, b], [a, b + 1]])
             return positions
-        elif b == N-1:                # Right side
+        elif b == board_size-1:                # Right side
             positions.extend([[a - 1, b], [a + 1, b], [a, b - 1]])
             return positions
         else:                       # Every other case
