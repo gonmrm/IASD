@@ -26,13 +26,13 @@ class Game():
         
         for i in range(0, board_size):
             for j in range(0, board_size):
-                if board[i][j] == str(player) and in_dict([i, j], all_strings)[0] == 0:
+                if board[i][j] == player and in_dict([i, j], all_strings)[0] == 0:
                     count = 0
                     level = [[i, j]]
                     all_strings[str(i)+ str(j)] = [[level[0][0], level[0][1]]]
                     while True:
                         for adj in self.adjacents(level[0][0], level[0][1], board_size):
-                            if board[adj[0]][adj[1]] == str(player) and in_dict([adj[0], adj[1]], all_strings)[0] == 0:
+                            if board[adj[0]][adj[1]] == player and in_dict([adj[0], adj[1]], all_strings)[0] == 0:
                                 all_strings[str(i)+ str(j)].append([adj[0], adj[1]])
                                 level.append([adj[0], adj[1]])
                                 count+=1
@@ -63,7 +63,7 @@ class Game():
             count = 0
             for elem in v:
                 for (coord_1, coord_2) in self.adjacents(elem[0], elem[1], board_size):
-                    if s["board"][coord_1][coord_2] == '0':
+                    if s["board"][coord_1][coord_2] == 0:
                         count+=1
                         break
                 if count>0:
@@ -75,7 +75,7 @@ class Game():
             count = 0
             for elem in v:
                 for (coord_1, coord_2) in self.adjacents(elem[0], elem[1], board_size):
-                    if s["board"][coord_1][coord_2] == '0':
+                    if s["board"][coord_1][coord_2] == 0:
                         count+=1
                         break
                 if count>0:
@@ -120,7 +120,7 @@ class Game():
         
         if winner > 0:
             for line in s["board"]:
-                if str(0) in line:
+                if 0 in line:
                     if winner == p:
                         return 1
                     else:
@@ -146,10 +146,10 @@ class Game():
 
         for i in range(0, N):  
             for j in range(0, N):
-                if board[i][j] == str(0):
+                if board[i][j] == 0:
                     zeros+=1
                     for (coord_1, coord_2) in self.adjacents(i, j, N):
-                        if board[coord_1][coord_2] == str(player):
+                        if board[coord_1][coord_2] == player:
                             liberties+=1
                             break
         
@@ -167,7 +167,7 @@ class Game():
         
         for i in range(0, board_size):
             for j in range(0, board_size):
-                if s["board"][i][j] == str(0):
+                if s["board"][i][j] == 0:
                     winner = self.winner(self.result(s, (p, i+1,j+1)))
                     if winner > 0:
                         if winner == p:
@@ -218,7 +218,7 @@ class Game():
         column = a[2]
         board = self.copy_board(s["board"])
 
-        board[line - 1][column - 1] = str(player)
+        board[line - 1][column - 1] = player
         if player == 1:
             next_player = 2
         else:
@@ -251,16 +251,16 @@ class Game():
             for line in file_stream: # read rest of lines
                 if first_line:
                     first_line = False
-                    board.append(list(line.replace('\n', '')))
+                    board.append(list(map(int, line.replace('\n', ''))))
                 else:
                     board_line = []
-                    board.append(list(line.replace('\n', '')))
+                    board.append(list(map(int, line.replace('\n', ''))))
 
             current_state = {
                 "board": board,
                 "next_player": next_player
             }
-
+            print(board)
         except Exception as e:
             print('ERROR - load_board: {}'.format(e))
 
