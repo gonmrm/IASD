@@ -95,10 +95,10 @@ while not g.terminal_test(state):
         state=g.result(state,action)
 
     if next==1:
-        #i=int(input("line: "))
-        #j=int(input("column: "))
-        #a=(next,i,j)
-        action = alphabeta_cutoff_search(state, g)
+        i=int(input("line: "))
+        j=int(input("column: "))
+        action=(next,i,j)
+        #action = alphabeta_cutoff_search(state, g)
         state=g.result(state,action)
     depois=time()
     print(depois-antes) 
