@@ -138,8 +138,6 @@ class Game():
         Utiliy of goncalo when board is not in terminal phase - evaluation with respect to player p
         """
 
-        strings_player = self.strings(board, player)
-
         N = len(board)
         zeros = 0
         liberties = 0
@@ -168,12 +166,16 @@ class Game():
         for i in range(0, board_size):
             for j in range(0, board_size):
                 if s["board"][i][j] == 0:
-                    winner = self.winner(self.result(s, (p, i+1,j+1)))
-                    if winner > 0:
-                        if winner == p:
+                    for (coord_1, coord_2) in self.adjacents(i, j, board_size):
+                        if s["board"][coord_1][coord_2] == 0:
                             actions.append((p, i+1, j+1))
-                    else:
-                        actions.append((p, i+1, j+1))
+                            break
+                        winner = self.winner(self.result(s, (p, i+1,j+1)))
+                        if winner >= 0:
+                            if winner == p or winner == 0:
+                                actions.append((p, i+1, j+1))
+                    #else:
+                        #actions.append((p, i+1, j+1))
         return actions
         
     def adjacents(self, a, b, N):
