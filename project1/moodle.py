@@ -181,12 +181,13 @@ class Game():
         for i in range(0, board_size):
             for j in range(0, board_size):
                 if s["board"][i][j] == 0:
-                    winner = self.winner(self.result(s, (p, i+1,j+1)))
-                    if winner > 0:
-                        if winner == p:
-                            actions.append((p, i+1, j+1))
-                    else:
+                    if 0 in self.adjacent_values(i, j, s["board"]):
                         actions.append((p, i+1, j+1))
+                    else:
+                        winner = self.winner(self.result(s, (p, i+1,j+1)))
+                        if winner >= 0:
+                            if winner == p or winner == 0:
+                                actions.append((p, i+1, j+1))
         return actions
         
     def adjacents(self, a, b, N):
@@ -205,6 +206,26 @@ class Game():
             positions.append([a,b+1])
 
         return positions
+
+    def adjacent_values(self, a, b, board):
+        """
+        Returns values surrounding a given (a,b) point
+        """
+
+        N = len(board)
+        values = []
+
+        if a-1>=0:
+            values.append(board[a-1][b])
+        if a+1<N:
+            values.append(board[a+1][b])
+        if b-1>=0:
+            values.append(board[a][b-1])
+        if b+1<N:
+            values.append(board[a][b+1])
+
+        return values
+        
 
     def copy_board(self, board):
 
