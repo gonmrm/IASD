@@ -1,7 +1,8 @@
 #!usr/bin/python3
 
 from moodle import Game
-import time
+from time import time
+from datetime import datetime
 infinity = 999999999
 
 def alphabeta_cutoff_search(state, game, d=4, cutoff_test=None, eval_fn=None): 
@@ -44,14 +45,18 @@ def alphabeta_cutoff_search(state, game, d=4, cutoff_test=None, eval_fn=None):
     best_score = -infinity
     beta = infinity
     best_action = None
+
     for a in game.actions(state):
+        
         v = min_value(game.result(state, a), best_score, beta, 1)
         if v > best_score:
             best_score = v
             best_action = a
+        
         print("Action: ")
         print(a)
         print("Score: %f" % v)
+      
     return best_action
 
 fd=open('endgame.txt','r')
@@ -82,22 +87,57 @@ while (not g.terminal_test(state)):
 finish = 0
 action = ()
 while not g.terminal_test(state):
-    next=int(state["next_player"])
+    next=state["next_player"]
     print("next player: %d" % next)
-
+    antes=time()
     if next==2:
-        time.sleep(1)
         action = alphabeta_cutoff_search(state, g)
         state=g.result(state,action)
 
     if next==1:
-        i=int(input("line: "))
-        j=int(input("column: "))
-        a=(next,i,j)
-        state=g.result(state,a)
-    
+        #i=int(input("line: "))
+        #j=int(input("column: "))
+        #a=(next,i,j)
+        action = alphabeta_cutoff_search(state, g)
+        state=g.result(state,action)
+    depois=time()
+    print(depois-antes) 
     print("Board: \n")
     for line in state["board"]:
         print(line)
 
 print("Game Over!")
+<<<<<<< HEAD
+=======
+'''
+
+antes=time()
+g.actions(state)
+depois=time()
+print(depois-antes)
+
+antes=time()
+g.adjacents(1,1,4)
+depois=time()
+print(depois-antes) 
+
+antes=time()
+g.result(state,(1,1,1))
+depois=time()
+print(depois-antes)
+
+antes=time()
+g.utility(state,1)
+depois=time()
+print(depois-antes) 
+
+antes=time()
+g.terminal_test(state)
+depois=time()
+print(depois-antes)
+
+antes=time()
+g.winner(state)
+depois=time()
+print(depois-antes) '''
+>>>>>>> 8f6da6ae775a7f74c3c27947be836bc9ccdec01c
