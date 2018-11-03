@@ -4,7 +4,7 @@ from moodle import Game
 import time
 infinity = 999999999
 
-def alphabeta_cutoff_search(state, game, d=2, cutoff_test=None, eval_fn=None): 
+def alphabeta_cutoff_search(state, game, d=4, cutoff_test=None, eval_fn=None): 
     """Search game to determine best action; use alpha-beta pruning.
     This version cuts off search and uses an evaluation function."""
 
