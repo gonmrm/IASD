@@ -1,6 +1,5 @@
 class Game():
 
-    
     def to_move(self, s):
 
         """
@@ -23,23 +22,23 @@ class Game():
         all_strings = {}
         level = []
         board_size = len(board)
-        
+        index = 0
         for i in range(0, board_size):
             for j in range(0, board_size):
                 if board[i][j] == player and in_dict([i, j], all_strings)[0] == 0:
                     count = 0
                     level = [[i, j]]
-                    all_strings[str(i)+ str(j)] = [[level[0][0], level[0][1]]]
+                    all_strings[index] = [[level[0][0], level[0][1]]]
                     while True:
                         for adj in self.adjacents(level[0][0], level[0][1], board_size):
                             if board[adj[0]][adj[1]] == player and in_dict([adj[0], adj[1]], all_strings)[0] == 0:
-                                all_strings[str(i)+ str(j)].append([adj[0], adj[1]])
+                                all_strings[index].append([adj[0], adj[1]])
                                 level.append([adj[0], adj[1]])
                                 count+=1
                         level.pop(0)
                         if level == []:
                             break
-                                             
+                index+=1
         return all_strings
 
 
@@ -59,7 +58,7 @@ class Game():
         player_1_locked = False
         player_2_locked = False
 
-        for (k, v) in strings_player_1.items():
+        for v in strings_player_1.values():
             count = 0
             for elem in v:
                 for (coord_1, coord_2) in self.adjacents(elem[0], elem[1], board_size):
@@ -71,7 +70,7 @@ class Game():
             if count == 0:
                 player_1_locked = True
 
-        for (k, v) in strings_player_2.items():
+        for v in strings_player_2.values():
             count = 0
             for elem in v:
                 for (coord_1, coord_2) in self.adjacents(elem[0], elem[1], board_size):
@@ -129,9 +128,28 @@ class Game():
 
                         
         else:
-            #return self.territory(s)
-            return self.goncalo_utility(s["board"], p)
+            #return self.rui(s["board"],p)
+            return 0.5
+            #return self.goncalo_utility(s["board"], p)
 
+    def rui(self,board,player):
+        if player == 1:
+            other = 2
+        else:
+            other = 1
+        N=len(board)
+        score = 0
+        for i in range(0, N):  
+            for j in range(0, N):
+                if board[i][j] == other:
+                    for point in self.adjacent_values(i,j,board):
+                        if point == 0:
+                            score-=0.02
+                if board[i][j] == player:
+                    for point in self.adjacent_values(i,j,board):
+                        if point == 0:
+                            score+=0.01
+        return score
     def goncalo_utility(self, board, player):
 
         """
@@ -185,9 +203,8 @@ class Game():
                         actions.append((p, i+1, j+1))
                     else:
                         winner = self.winner(self.result(s, (p, i+1,j+1)))
-                        if winner >= 0:
-                            if winner == p or winner == 0:
-                                actions.append((p, i+1, j+1))
+                        if winner == p or winner == 0:
+                            actions.append((p, i+1, j+1))
         return actions
         
     def adjacents(self, a, b, N):
@@ -247,13 +264,13 @@ class Game():
         returns the sucessor game state after playing move a at state s
         """
 
-        player = a[0]
-        line = a[1]
-        column = a[2]
+        #player = a[0]
+        #line = a[1]
+        #column = a[2]
         board = self.copy_board(s["board"])
 
-        board[line - 1][column - 1] = player
-        if player == 1:
+        board[a[1] - 1][a[2] - 1] = a[0]
+        if a[0] == 1:
             next_player = 2
         else:
             next_player = 1
