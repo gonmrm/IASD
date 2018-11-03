@@ -59,7 +59,7 @@ def alphabeta_cutoff_search(state, game, d=4, cutoff_test=None, eval_fn=None):
       
     return best_action
 
-fd=open('endgame.txt','r')
+fd=open('board.txt','r')
 g=Game()
 
 state=g.load_board(fd)
