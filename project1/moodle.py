@@ -128,8 +128,7 @@ class Game():
 
                         
         else:
-            #return self.rui(s["board"],p)
-            return 0.5
+            return self.rui(s["board"],p)
             #return self.goncalo_utility(s["board"], p)
 
     def rui(self,board,player):
@@ -138,17 +137,17 @@ class Game():
         else:
             other = 1
         N=len(board)
-        score = 0
+        score = 0.5
         for i in range(0, N):  
             for j in range(0, N):
                 if board[i][j] == other:
                     for point in self.adjacent_values(i,j,board):
                         if point == 0:
-                            score-=0.02
-                if board[i][j] == player:
+                            score-=0.01
+                '''if board[i][j] == player:
                     for point in self.adjacent_values(i,j,board):
                         if point == 0:
-                            score+=0.01
+                            score+=0.01'''
         return score
     def goncalo_utility(self, board, player):
 
