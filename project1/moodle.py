@@ -27,12 +27,12 @@ class Game():
             for j in range(0, board_size):
                 if board[i][j] == player and in_dict([i, j], all_strings)[0] == 0:
                     count = 0
-                    level = [[i, j]]
+                    level = [(i, j)]
                     all_strings[index] = [(level[0][0], level[0][1])]
                     while True:
                         for adj in self.adjacents(level[0][0], level[0][1], board_size):
                             if board[adj[0]][adj[1]] == player and in_dict([adj[0], adj[1]], all_strings)[0] == 0:
-                                all_strings[index].append([adj[0], adj[1]])
+                                all_strings[index].append((adj[0], adj[1]))
                                 level.append((adj[0], adj[1]))
                                 count+=1
                         level.pop(0)
