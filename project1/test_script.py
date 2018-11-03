@@ -1,6 +1,6 @@
 #!usr/bin/python3
 
-from moodle import Game
+from moodle2 import Game
 from time import time
 from datetime import datetime
 infinity = 999999999
@@ -65,8 +65,8 @@ g=Game()
 state=g.load_board(fd)
 #test=state
 #print(g.state["next_player"])
-for line in state["board"]:
-        print(line)
+#for line in state["board"]:
+ #       print(line)
 
 #print(g.actions(state))
 '''
@@ -95,16 +95,14 @@ while not g.terminal_test(state):
         state=g.result(state,action)
 
     if next==1:
-        i=int(input("line: "))
-        j=int(input("column: "))
-        action=(next,i,j)
-        #action = alphabeta_cutoff_search(state, g)
+        #i=int(input("line: "))
+        #j=int(input("column: "))
+        #action=(next,i,j)
+        action = alphabeta_cutoff_search(state, g)
         state=g.result(state,action)
     depois=time()
     print(depois-antes) 
-    print("Board: \n")
-    for line in state["board"]:
-        print(line)
+   
 
 print("Game Over!")
 '''
