@@ -195,6 +195,24 @@ class Game():
 
         return positions
 
+    def adjacents2(self, a, b, board):
+        """
+        Returns points surrounding a given (a,b) point
+        """
+        N=len(board[0])
+        positions = []
+
+        if a-1>=0:
+            positions.append(board[a-1][b])
+        if a+1<N:
+            positions.append(board[a+1][b])
+        if b-1>=0:
+            positions.append(board[a][b-1])
+        if b+1<N:
+            positions.append(board[a][b+1])
+
+        return positions
+
     def copy_board(self, board):
 
         """
