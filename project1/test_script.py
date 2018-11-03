@@ -107,8 +107,6 @@ while not g.terminal_test(state):
         print(line)
 
 print("Game Over!")
-<<<<<<< HEAD
-=======
 '''
 
 antes=time()
@@ -140,4 +138,3 @@ antes=time()
 g.winner(state)
 depois=time()
 print(depois-antes) '''
->>>>>>> 8f6da6ae775a7f74c3c27947be836bc9ccdec01c
