@@ -5,13 +5,14 @@ class Problem(csp.CSP):
     #   Place here your code to load problem from opened file object fh and
     #   set variables, domains, graph, and constraint_function accordingly
 
-        fd = open('input.txt','r');
+        #fd = open('input.txt','r')
 
         variables = []
         domains = {}
-        for line in fd:
+        constr= {}
+        for line in fh:
             key = line[0]
-            variable.append(key)
+            variables.append(key)
             element_list = []
             for element in line[2:].split(' '):
                 if ',' in element: # means it is tuple
@@ -25,25 +26,35 @@ class Problem(csp.CSP):
                     if '\n' in element:
                         element = element[:-1]
                     element_list.append(element)
-            domains[key] = element_list
+            if key=='T':
+                domains['T']=element_list
+            elif key=='R':
+                    domains['R']=element_list
+            elif key=='W':
+                variables = element_list
+            else:
+                constr[key]=element_list
+        #print(domains)
+        print(variables)
+        #print(constr)
+        #schedule={} # (class, type, number, day, hour, room)
+        neighbors = variables
+        def constraints_function(self, A, a, B, b):
+            
+            
+           
+           
+            '''if A=='R':
+                for block in schedule: # Não podem existir duas aulas na mesma sala
+                    if block(5)==a:
+                        return False
+                if B=='W':
+                    if b in self.domains['W']:
+                        return True
+            else:
+                True
+'''
 
-        graph = {
-            'T': ['R', 'W'],
-            'R': ['T', 'S'],
-            'S': ['R', 'W', 'A'],
-            'W': ['T', 'S', 'A'],
-            'A': ['S', 'W']
-        }
-        
-        super().__init__(variables, domains, graph, constraints_function)
-        
-    def dump_solution(self, fh):
-      #  Place here your code to write solution to opened file object fh
-        print(1)
-
-    def constraints_function(self, A, a, B, b):
-        #
-        if self.domains[A]
 
         #if A in self.graph[B] or B in self.graph[A]:
          #   # compare the value of A and B with a and b
@@ -52,19 +63,24 @@ class Problem(csp.CSP):
             #else
              #   return False
       #  else:
-       #     return False
+            return False
+        
+        super().__init__(variables, domains, neighbors, constraints_function)
+        
+    def dump_solution(self, fh):
+      #  Place here your code to write solution to opened file object fh
         print(1)
+    
+    def cost_function(self, output_file):
+        print(1)  # See solution and find latest class
 
-def cost_function(output_file):
-    print(1)
-
-def solve(input_file, output_file):
-    values = {}
-    p = Problem(input_file)
-    for key in p.domains.keys():
-        values[key] == [];
-    # Place here your code that calls function csp.backtracking_search(self, ...)
-    p.dump_solution(output_file)
+    def solve(self, input_file, output_file):
+        values = {}
+        p = Problem(input_file)
+        for key in p.domains.keys():
+            values[key] == []
+        csp.backtracking_search(self,)
+        p.dump_solution(output_file)
 
 
     
