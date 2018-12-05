@@ -7,12 +7,12 @@ class Problem(csp.CSP):
 
         #fd = open('input.txt','r')
 
-        variables = []
-        domains = {}
+        temp_variables = []
+        variables=[]
+        temp = {}
         constr= {}
         for line in fh:
             key = line[0]
-            variables.append(key)
             element_list = []
             for element in line[2:].split(' '):
                 if ',' in element: # means it is tuple
@@ -21,24 +21,36 @@ class Problem(csp.CSP):
                         if '\n' in item:
                             item = item[:-1]
                         item_list.append(item)
-                    element_list.append(tuple(item_list))
+                    element_list.append(item_list)
                 else:
                     if '\n' in element:
                         element = element[:-1]
                     element_list.append(element)
             if key=='T':
-                domains['T']=element_list
+                temp['T']=element_list
             elif key=='R':
-                    domains['R']=element_list
+                    temp['R']=element_list
             elif key=='W':
-                variables = element_list
+                temp_variables = element_list
             else:
                 constr[key]=element_list
-        #print(domains)
-        print(variables)
-        #print(constr)
-        #schedule={} # (class, type, number, day, hour, room)
-        neighbors = variables
+        domain={}
+        neighbors={}
+        for key in temp_variables:
+            lis=[]
+            for block in temp['T']:
+                for room in temp['R']:
+                    block.append(room)
+                    copy = list(block)
+                    lis.append(copy)
+                    block.pop()
+            
+            print(lis)
+            domain[','.join(key)] = lis
+        for key2 in temp_variables:
+               
+        
+
         def constraints_function(self, A, a, B, b):
             
             
@@ -65,20 +77,19 @@ class Problem(csp.CSP):
       #  else:
             return False
         
-        super().__init__(variables, domains, neighbors, constraints_function)
+        super().__init__(variables, domain, neighbors, constraints_function)
         
     def dump_solution(self, fh):
       #  Place here your code to write solution to opened file object fh
-        print(1)
+        fd = open('input.txt','r')
     
     def cost_function(self, output_file):
-        print(1)  # See solution and find latest class
+        print(1)#for line in fh: # See solution and find latest class percorrer linhas e procurar 
 
     def solve(self, input_file, output_file):
         values = {}
         p = Problem(input_file)
-        for key in p.domains.keys():
-            values[key] == []
+        
         csp.backtracking_search(self,)
         p.dump_solution(output_file)
 
