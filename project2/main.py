@@ -27,13 +27,15 @@ class Problem(csp.CSP):
                     element_list.append(element)
             if key=='T':
                 temp['T']=element_list
+            elif key=='S':
+                S = element_list
             elif key=='R':
                     temp['R']=element_list
             elif key=='W':
                 for var in element_list:
                     variables.append(','.join(var))
             else:
-                constr[key]=element_list
+                temp['A']=element_list
         domain={}
         neighbors={}
         for key in variables:
@@ -44,8 +46,6 @@ class Problem(csp.CSP):
                     copy = list(block)
                     lis.append(copy)
                     block.pop()
-            
-            
             domain[key] = lis
             n_list=[]
             for key2 in variables:
@@ -53,43 +53,51 @@ class Problem(csp.CSP):
                     continue
                 n_list.append(key2)
             neighbors[key]=n_list
-        print(temp['T'])
-        print(temp['R'])
-        print(neighbors)
-        print(domain)
-        print(variables)
+        classes={}
+        '''
+        lis=[]
+        for range(1:len(S)):
+            for turnos in temp['A']:
+        '''
+
+
+        #print(domain)
+        #print(variables)
+        #a=variables[0].split(',')
+        #print(constr)
 
         def constraints_function(self, A, a, B, b):
+
+            A=A.split(',')
+            B=B.split(',')
             
-            
-           
-           
-            '''if A=='R':
-                for block in schedule: # Não podem existir duas aulas na mesma sala
-                    if block(5)==a:
+            if A[0:2]==B[0:2] and a[0]==b[0]:  # Duas aulas do mesmo tipo no mesmo dia, não pode ser
+                return False
+            elif a[0:2]==b[0:2]:               # Duas aulas no mesmo dia à mesma hora
+                if a[2]==b[2]:                 # Caso sejam na mesma sala, não pode ser
+                    return False
+                turnos=[]
+                for conjunto in self.constr['A']: # Verificar se há turnos em comum nas duas aulas, caso haja não pode ser, há sobreposição
+                    if conjunto[1]==A[0]:
+                        turnos.append(conjunto[0])         # Reunir turnos com disciplina A e verificar se existem na disciplina B
+                for conjunto in self.constr['A']:
+                    if conjunto[1]==B[0]
+
+                '''Pode compensar fazer um dicionario na init na forma {IASD:['turno1','turno2']} para poder fazer o que está abaixo
+                for turno in S:
+                    if turno in A[0] and turno in B[0]: # A[0]='IASD' B[0]='SCDTR'
                         return False
-                if B=='W':
-                    if b in self.domains['W']:
+                        '''
                         return True
-            else:
-                True
-'''
 
 
-        #if A in self.graph[B] or B in self.graph[A]:
-         #   # compare the value of A and B with a and b
-          #  if self.domains[A] == a and self.domains[B] == b:
-           #     return True
-            #else
-             #   return False
-      #  else:
-            return False
-        
+            return True
+
         super().__init__(variables, domain, neighbors, constraints_function)
         
     def dump_solution(self, fh):
       #  Place here your code to write solution to opened file object fh
-        fd = open('input.txt','r')
+        fd = open('input.txt','w')
     
     def cost_function(self, output_file):
         print(1)#for line in fh: # See solution and find latest class percorrer linhas e procurar 
