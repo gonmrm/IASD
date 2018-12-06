@@ -7,7 +7,6 @@ class Problem(csp.CSP):
 
         #fd = open('input.txt','r')
 
-        temp_variables = []
         variables=[]
         temp = {}
         constr= {}
@@ -31,12 +30,13 @@ class Problem(csp.CSP):
             elif key=='R':
                     temp['R']=element_list
             elif key=='W':
-                temp_variables = element_list
+                for var in element_list:
+                    variables.append(','.join(var))
             else:
                 constr[key]=element_list
         domain={}
         neighbors={}
-        for key in temp_variables:
+        for key in variables:
             lis=[]
             for block in temp['T']:
                 for room in temp['R']:
@@ -45,11 +45,19 @@ class Problem(csp.CSP):
                     lis.append(copy)
                     block.pop()
             
-            print(lis)
-            domain[','.join(key)] = lis
-        for key2 in temp_variables:
-               
-        
+            
+            domain[key] = lis
+            n_list=[]
+            for key2 in variables:
+                if key==key2:
+                    continue
+                n_list.append(key2)
+            neighbors[key]=n_list
+        print(temp['T'])
+        print(temp['R'])
+        print(neighbors)
+        print(domain)
+        print(variables)
 
         def constraints_function(self, A, a, B, b):
             
@@ -117,3 +125,4 @@ This class describes finite-domain Constraint Satisfaction Problems.
         constraints A function f(A, a, B, b) that returns true if neighbors
                     A, B satisfy the constraint when they have values A=a, B=b
 """ 
+
