@@ -68,9 +68,7 @@ class Problem(csp.CSP):
             a=a.split(',')
             b=b.split(',')
 
-            if int(a[1])>self.upper_bound or int(b[1])>self.upper_bound:
-                return False
-            elif A[0:2]==B[0:2] and a[0]==b[0]:  # Duas aulas do mesmo tipo no mesmo dia, não pode ser
+            if A[0:2]==B[0:2] and a[0]==b[0]:  # Duas aulas do mesmo tipo no mesmo dia, não pode ser
                 return False
             elif a[0:2]==b[0:2]:               # Duas aulas no mesmo dia à mesma hora
                 if a[2]==b[2]:                 # Caso sejam na mesma sala, não pode ser
@@ -78,11 +76,13 @@ class Problem(csp.CSP):
                 turnos=[]
                 for conjunto in constrA: # Verificar se há turnos em comum nas duas aulas, caso haja não pode ser, há sobreposição
                     if conjunto[1]==A[0]:
-                        turnos.append(conjunto[0])    # Reunir turnos com disciplina A e verificar se existem na disciplina B
+                        turnos.append(conjunto[0])    # Reunir turnos com disciplina A, depois verificar turnos com disciplina B
                 for conjunto in constrA:
                     if conjunto[1]==B[0]:
                         if conjunto[0] in turnos:     # Verificar se turnos com a disciplina têm também a disciplina B
                             return False
+            elif int(a[1])>self.upper_bound or int(b[1])>self.upper_bound:
+                return False
             else:
                 return True
                 '''Pode compensar fazer um dicionario na init na forma {IASD:['turno1','turno2']} para poder fazer o que está abaixo
@@ -109,7 +109,6 @@ class Problem(csp.CSP):
 def solve(input_file, output_file):
     p=Problem(input_file)
     p.upper_bound=10
-    optimal=False
     down=True
     up=False
     p.solution=csp.backtracking_search(p)
