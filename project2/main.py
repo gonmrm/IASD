@@ -40,7 +40,6 @@ class Problem(csp.CSP):
             else:
                 constrA = list(element_list)
         
-        
         for key in variables:
             lis=[]
             for block in blocks:
@@ -68,10 +67,6 @@ class Problem(csp.CSP):
             a=a.split(',')
             b=b.split(',')
 
-            if (int(a[1]) > self.upper_bound):
-                return False
-            if (int(b[1]) > self.upper_bound):
-                return False
             if A[0:2] == B[0:2] and a[0] == b[0]:   # Duas aulas do mesmo tipo no mesmo dia, não pode ser
                 return False
             if a[0:3] == b[0:3]:                   # Duas aulas no mesmo dia à mesma hora mesma sala
@@ -85,6 +80,10 @@ class Problem(csp.CSP):
                     if conjunto[1] == B[0]:
                         if conjunto[0] in turnos:   # Verificar se turnos com a disciplina têm também a disciplina B
                             return False
+            if (int(a[1]) > self.upper_bound):
+                return False
+            if (int(b[1]) > self.upper_bound):
+                return False
             return True
 
             '''Pode compensar fazer um dicionario na init na forma {IASD:['turno1','turno2']} para poder fazer o que está abaixo
@@ -110,33 +109,32 @@ class Problem(csp.CSP):
 
 def solve(input_file, output_file):
     p=Problem(input_file)
-    p.upper_bound=10
+    p.upper_bound=4
     down=False
     up=False
-
-    p.solution=csp.backtracking_search(p,csp.mrv,csp.lcv)
-    print(p.solution)
-    if p.solution!=None: # Solution exists must decrease bound
+    p.solution = csp.backtracking_search(p, csp.first_unassigned_variable, csp.unordered_domain_values)
+    if p.solution != None: # Solution exists must decrease bound
+        p.upper_bound-=1
         down=True
     else:               # Solution does not exist must increase bound
+        p.upper_bound+=1
         up=True
 
     while True:
-        
+        p.solution = csp.backtracking_search(p, csp.first_unassigned_variable, csp.unordered_domain_values)
         if down:
-            p.upper_bound-=1
-            p.solution=csp.backtracking_search(p,csp.mrv,csp.lcv)
-            if p.solution!=None:
-                pass
-            elif p.solution==None:
+            if p.solution != None:
+                p.upper_bound-=1
+                print("Upper Bound ", p.upper_bound)
+            else:
                 p.upper_bound+=1
-                p.solution=csp.backtracking_search(p,csp.mrv,csp.lcv)
+                print("Upper Bound ", p.upper_bound)
+                p.solution=csp.backtracking_search(p, csp.first_unassigned_variable, csp.unordered_domain_values)
                 break
         elif up:
-            p.upper_bound+=1
-            p.solution=csp.backtracking_search(p,csp.mrv,csp.lcv)
             if p.solution==None:
-                pass
+                p.upper_bound+=1
+                print("Upper Bound ", p.upper_bound)
             else:
                 break
         
@@ -144,8 +142,6 @@ def solve(input_file, output_file):
     print(p.solution)
     p.dump_solution(output_file)
 
-
-    
 """
 This class describes finite-domain Constraint Satisfaction Problems.
     A CSP is specified by the following inputs:
